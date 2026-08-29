@@ -1,0 +1,12 @@
+# Sekrety — realny token, nigdy nie commitowac.
+.env
+
+# Trwale dane palace (baza pamieci: chroma.sqlite3, knowledge_graph.sqlite3, mempalace.yaml).
+# To nie jest kod projektu, tylko lokalny stan danych — nie nalezy do repo Git.
+palace-data/
+
+# Systemowe / IDE
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc

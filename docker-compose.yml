@@ -1,0 +1,50 @@
+services:
+  mempalace:
+    build: .
+    container_name: mempalace-mcp
+
+    restart: unless-stopped
+    init: true
+
+    # user: "${UID:-1000}:${GID:-1000}"
+    # Wylaczone na Windows/Docker Desktop (WSL2): bind mount z Windowsa
+    # nie ma uprawnien dla usera 1000 wewnatrz WSL2, co powoduje
+    # PermissionError przy odczycie plikow w /palace. Na Linuksie
+    # (docelowy serwerek 10.0.40.2) odkomentuj z powrotem, zeby pliki
+    # w palace-data mialy wlasciwego wlasciciela zamiast roota.
+    working_dir: /palace
+
+    volumes:
+      - ./palace-data:/palace
+
+    # Opcjonalny token do autoryzacji - jesli chcesz go wlaczyc, wpisz
+    # MEMPALACE_MCP_HTTP_TOKEN=cos-losowego w .env. Bez niego /mcp jest
+    # dostepne bez autoryzacji dla kazdego kontenera w sieci shared-mcp-net.
+    environment:
+      MEMPALACE_MCP_HTTP_TOKEN: "${MEMPALACE_MCP_HTTP_TOKEN:-}"
+
+    # Port wystawiony na hosta - do testow lokalnych w Docker Desktop
+    # (np. curl http://localhost:8000/healthz). Inne kontenery i tak
+    # laczą się po nazwie: http://mempalace-mcp:8000/mcp
+    ports:
+      - "8002:8000"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      - shared-mcp-net
+
+# UWAGA (Windows/Docker Desktop): siec "shared-mcp-net" jest zewnetrzna (external: true),
+# wiec Compose jej sam nie utworzy. Przed pierwszym "docker compose up" trzeba ja
+# zalozyc recznie, raz na caly Docker Desktop (PowerShell):
+#   docker network create shared-mcp-net
+# Jesli siec juz istnieje (np. zalozona przez projekt mcp-hub), polecenie zwroci
+# blad "already exists" - to nic nie szkodzi, mozna go zignorowac.
+networks:
+  shared-mcp-net:
+    external: true

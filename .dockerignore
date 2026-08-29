@@ -1,0 +1,14 @@
+# Dane runtime montowane wolumenem (./palace-data:/palace) - nie powinny
+# trafiac do kontekstu builda (przyspiesza "docker compose build" i chroni
+# dane przed przypadkowym zapieczeniem w obrazie, gdyby ktos kiedys dodal COPY).
+palace-data/
+
+# Sekrety - token MCP nie powinien trafiac do kontekstu builda/obrazu.
+.env
+
+# Systemowe / VCS / cache
+.git
+.gitignore
+__pycache__/
+*.pyc
+.DS_Store
